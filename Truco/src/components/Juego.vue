@@ -212,6 +212,7 @@
               carta.selected = true;
               if(this.cartaTirada === null){
                 this.cartaTirada = carta;
+                this.turnoDe = this.turnoDe === 1 ? 2 : 1;
               }else {
                 if(calcularDistancia(carta) < calcularDistancia(this.cartaTirada)){
                   this.asignarBaza(this.turnoDe);
@@ -219,6 +220,7 @@
                   this.asignarBaza('E');
                 } else {
                   this.asignarBaza(this.turnoDe === 1 ? 2 : 1);
+                  this.turnoDe = this.turnoDe === 1 ? 2 : 1;
                 }
                 this.cartaTirada = null;
                 this.mano.turno++;
@@ -236,7 +238,7 @@
                   this.terminarMano(ganadorDeMano);
                 }
               } else{
-                this.turnoDe = this.turnoDe === 1 ? 2 : 1;
+                //this.turnoDe = this.turnoDe === 1 ? 2 : 1;
               }
 
             }
@@ -298,13 +300,14 @@
               this.jugador2.mano = mano2;
 
               this.mano = {
-                esMano: this.turnoDe,
+                esMano: this.mano.esMano === 1 ? 2 : 1,
                 turno: 1,
                 puntosAGanar: 1,
                 primera: '',
                 segunda: '',
                 tercera: ''
               };
+              this.turnoDe = this.mano.esMano;
               this.envidoCantado = false;
               this.florCantada = false;
               this.trucoCantado = false;
