@@ -218,6 +218,7 @@
                   this.asignarBaza(this.turnoDe);
                 } else if(calcularDistancia(carta) === calcularDistancia(this.cartaTirada)){
                   this.asignarBaza('E');
+                  this.turnoDe = this.mano.esMano;
                 } else {
                   this.asignarBaza(this.turnoDe === 1 ? 2 : 1);
                   this.turnoDe = this.turnoDe === 1 ? 2 : 1;
@@ -275,6 +276,11 @@
             else if(this.mano.segunda === this.mano.tercera && this.mano.segunda !== 'E') {
               return this.mano.segunda;
             }
+            else if(this.mano.segunda === 'E' && this.mano.primera !== 'E'){
+              return this.mano.primera;
+            } else if(this.mano.tercera ==='E' && this.mano.primera !== 'E' && this.mano.segunda !== 'E' && this.mano.primera !== this.mano.segunda){
+              return this.mano.primera;
+            }
             else {
               return -1;
             }
@@ -330,7 +336,7 @@
 
             if(decision !== false){
               let puntos = grafoEnvido[indicesEnvido.indexOf(desde)][indicesEnvido.indexOf(hasta)];
-              puntos[0] = puntos[0] === 'R' ? (this.jugador1.puntos > this.jugador2.puntos ? (30 - Number(this.jugador1.puntos)) : (30 - Number(this.jugador2.puntos))) : puntos[0];
+              puntos[0] = puntos[0] === 'R' ? this.calcularPuntosFaltaEnvidoQuerido() : puntos[0];
               if(decision === 'Q') {
                   if (this.calcularPuntosEnvido(this.jugador1.mano) > this.calcularPuntosEnvido(this.jugador2.mano)) {
                     toastr('S',this.jugador1.nombre + ' ganó el envido.','ENVIDO');
@@ -389,6 +395,13 @@
                 $('#modalEnvido').show();
             }
             this.verificarGanadorPartido();
+          },
+          calcularPuntosFaltaEnvidoQuerido(){
+            const puntosJugMasAvanzado = Number(this.jugador1.puntos) > Number(this.jugador2.puntos) ? Number(this.jugador1.puntos) : Number(this.jugador2.puntos);
+            if(puntosJugMasAvanzado > 15)
+              return (30 - puntosJugMasAvanzado);
+            else
+              return (15 - puntosJugMasAvanzado);
           },
           calcularPuntosEnvido(mano){
             if( mano[0].palo === mano[1].palo && mano[1].palo === mano[2].palo){
