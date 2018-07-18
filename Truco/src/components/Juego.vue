@@ -38,7 +38,12 @@
                     </div>
                     <div class="row">
                       <div class="col p-1">
-                        <button type="button" class="btn btn-block btn-primary" v-show="jugador1.mano[0].palo === jugador1.mano[1].palo && jugador1.mano[1].palo === jugador1.mano[2].palo" :disabled="florCantada" @click="florClick('0','F',1)">Flor</button>
+                        <button type="button" class="btn btn-block btn-primary" v-show="(jugador1.mano[0].palo === jugador1.mano[1].palo && jugador1.mano[1].palo === jugador1.mano[2].palo) && juegoConFlor === true" :disabled="florCantada" @click="florClick('0','F',1)">Flor</button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col p-1">
+                        <button type="button" class="btn btn-block btn-primary" @click="sugerenciaClick(1)">Sugerencia</button>
                       </div>
                     </div>
                   </div>
@@ -79,7 +84,12 @@
                     </div>
                     <div class="row">
                       <div class="col p-1">
-                        <button type="button" class="btn btn-block btn-primary" v-show="jugador2.mano[0].palo === jugador2.mano[1].palo && jugador2.mano[1].palo === jugador2.mano[2].palo" :disabled="florCantada" @click="florClick('0','F',2)">Flor</button>
+                        <button type="button" class="btn btn-block btn-primary" v-show="(jugador2.mano[0].palo === jugador2.mano[1].palo && jugador2.mano[1].palo === jugador2.mano[2].palo) && juegoConFlor === true" :disabled="florCantada" @click="florClick('0','F',2)">Flor</button>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col p-1">
+                        <button type="button" class="btn btn-block btn-primary" @click="sugerenciaClick(2)">Sugerencia</button>
                       </div>
                     </div>
                   </div>
@@ -163,6 +173,7 @@
         name: "juego",
         data: function () {
           return {
+            juegoConFlor: localStorage.getItem('conFlor') === 'true' ? true : false,
             turnoDe : 1,
             jugador1 : {
               nombre : localStorage.getItem('nomJug1'),
@@ -259,26 +270,34 @@
           },
           verificarMano(){
             if(this.mano.primera === this.mano.segunda && this.mano.primera !== 'E') {
+              console.log('1');
               return this.mano.primera;
             }
             else if(this.mano.primera === this.mano.tercera && this.mano.primera !== 'E') {
+              console.log('2');
               return this.mano.primera;
             }
             else if(this.mano.primera === 'E' && this.mano.segunda !== 'E') {
+              console.log('3');
               return this.mano.segunda;
             }
             else if(this.mano.primera === 'E' && this.mano.segunda === 'E' && this.mano.tercera !== 'E') {
+              console.log('4');
               return this.mano.tercera;
             }
             else if(this.mano.primera === 'E' && this.mano.segunda === 'E' && this.mano.tercera === 'E') {
+              console.log('5');
               return this.mano.esMano;
             }
             else if(this.mano.segunda === this.mano.tercera && this.mano.segunda !== 'E') {
+              console.log('6');
               return this.mano.segunda;
             }
             else if(this.mano.segunda === 'E' && this.mano.primera !== 'E'){
+              console.log('7');
               return this.mano.primera;
             } else if(this.mano.tercera ==='E' && this.mano.primera !== 'E' && this.mano.segunda !== 'E' && this.mano.primera !== this.mano.segunda){
+              console.log('8');
               return this.mano.primera;
             }
             else {
@@ -554,6 +573,65 @@
               this.trucoCantado = this.trucoCantado === false ? 'T': (this.trucoCantado === 'T' ? 'R' : 'V');
             }
             this.verificarGanadorPartido();
+          },
+          sugerenciaClick(numJugador) {
+            let haySugerencia = false;
+
+            if(this.mano.turno === 3){
+              let carta = {};
+              if(numJugador === 1){
+                this.jugador1.mano.forEach((c)=> {
+                  if(!c.selected)
+                    carta = c;
+                })
+              } else {
+                this.jugador2.mano.forEach((c)=> {
+                  if(!c.selected)
+                    carta = c;
+                })
+              }
+              if(probabilidadCarta(carta) > 0.7){
+                toastr('S','Cantar truco');
+                haySugerencia = true;
+              }
+            }
+
+            if(!this.envidoCantado && this.mano.turno === 1){
+              let puntos = 0;
+              if(numJugador === 1)
+                puntos = this.calcularPuntosEnvido(this.jugador1.mano);
+              else
+                puntos = this.calcularPuntosEnvido(this.jugador2.mano);
+
+              if(puntos >= 20) {
+                const probFaltaEnvido = (((puntos - 20) + 1) / 14);
+                if(probFaltaEnvido > 0.6){
+                  toastr('S','Cantar Falta Envido');
+                  haySugerencia = true;
+                }
+              }
+            }
+
+            if(this.mano.turno === 1){
+              let mano = 0;
+              if(numJugador === 1)
+                mano = this.jugador1.mano;
+              else
+                mano = this.jugador2.mano;
+
+              let prob = 0;
+              mano.forEach((c) => {
+                prob += probabilidadCarta(c);
+              });
+
+              if((prob/3) > 0.8){
+                toastr('S','Perder 1er baza.');
+                haySugerencia = true;
+              }
+            }
+
+            if(!haySugerencia)
+              toastr('e','No hay sugerencia');
           }
         },
         created () {
@@ -561,9 +639,9 @@
 
           mano1 = []; mano2 = [];
           repartirMano(3,this.mazo);
-          this.jugador1.mano = mano1;//= [{palo:'E',numero:1},{palo:'E',numero:7},{palo:'E',numero:6}]; //
+          this.jugador1.mano = mano1;//= [{palo:'E',numero:1},{palo:'E',numero:7},{palo:'B',numero:1}]; //
           this.jugador2.mano = mano2;//= [{palo:'B',numero:1},{palo:'B',numero:3},{palo:'B',numero:4}];//
-        }
+        },
     }
 
     let mano1 = [];
@@ -624,6 +702,13 @@
       }
 
       return distancia;
+    };
+
+    const probabilidadCarta = (carta )=> {
+      const indiceCarta = indiceGrafo.indexOf(carta.numero + carta.palo) !== -1 ? indiceGrafo.indexOf(carta.numero + carta.palo) : indiceGrafo.indexOf(carta.numero + 'X');
+
+      const numA = 14 - Number(indiceCarta-1);
+      return numA === 1 ? 0 : (Math.round(((numA)/14) * 100)/100);
     };
 
     const grafoCartas =

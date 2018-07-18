@@ -17,6 +17,12 @@
               <input type="text" class="form-control" id="nom2" v-model="nom2">
             </div>
             <div class="form-group">
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" v-model="conFlor" class="custom-control-input" id="customCheck1">
+                <label class="custom-control-label" for="customCheck1">Jugar con FLOR</label>
+              </div>
+            </div>
+            <div class="form-group">
               <button type="button" class="btn btn-success btn-block" @click="iniciar">Iniciar Juego</button>
             </div>
           </div>
@@ -32,7 +38,8 @@
         data: function () {
           return {
             nom1: '',
-            nom2: ''
+            nom2: '',
+            conFlor: false
           }
         },
         methods: {
@@ -54,6 +61,7 @@
             } else {
               localStorage.setItem('nomJug1',this.nom1);
               localStorage.setItem('nomJug2',this.nom2);
+              localStorage.setItem('conFlor',this.conFlor);
               this.$router.push('/Juego');
             }
           },
