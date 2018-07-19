@@ -564,7 +564,7 @@
               if(this.mano.turno === 1 && this.envidoCantado === false)
                 botones.push({texto:'El envido esta primero', jugador:numJugador, decision:'E'});
               const manoContraria = numJugador === 1 ? this.jugador2.mano : this.jugador1.mano;
-              if(manoContraria[0].palo === manoContraria[1].palo && manoContraria[2].palo === manoContraria[1].palo)
+              if((manoContraria[0].palo === manoContraria[1].palo && manoContraria[2].palo === manoContraria[1].palo) && this.juegoConFlor && this.mano.turno === 1)
                 botones.push({texto:'La flor esta primero', jugador:numJugador, decision:'F'});
               botones.push({texto: 'No Quiero', jugador:numJugador, decision: 'N'});
               this.popUpTruco.botones = botones;
