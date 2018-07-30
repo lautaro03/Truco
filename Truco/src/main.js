@@ -15,7 +15,7 @@ Vue.use(Toastr);
 Vue.use(VModal, { dialog: true });
 
 Vue.config.productionTip = false;
-
+/**/
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
